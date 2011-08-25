@@ -119,8 +119,9 @@ def test():
     #print query
     
   #print "Called data"
-    make_response(redirect(url_for('data',q=query)))
-  return render_template('test.html')
+    return redirect(url_for('data', q=query))
+  else:
+    return render_template('test.html')
 
 
   
