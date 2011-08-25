@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+
+Tweaked by geohacker. for experimenting the REST API features.
     Flaskr
     ~~~~~~
 
@@ -14,7 +16,7 @@ from sqlite3 import dbapi2 as sqlite3
 from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, send_from_directory, send_file, Response, make_response
-import csv
+import csv, StringIO
 
 # configuration
 DATABASE = '/tmp/flaskr.db'
@@ -93,10 +95,29 @@ def logout():
     flash('You were logged out')
     return redirect(url_for('show_entries'))
 
-@app.route('/data/<q>')
-def data(q):
-  print q
-  return render_template('login.html')
+@app.route('/data', methods=['GET','POST'])
+def data():
+  if request.method=='GET':
+    data=request.args['data']
+    year=request.args['year']
+    print data, year
+    csv_out = StringIO.StringIO()
+  #print url_for('data')
+    cur = g.db.execute('select title, text from entries where id=1')
+    for row in cur.fetchall():
+      entries = [row[0],row[1]]
+    writer = csv.writer(csv_out, delimiter=' ',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow(entries)
+    
+    #print csv_out.getvalue()
+  #Response((send_from_directory(app.config['FOLDER'],'temp.csv',as_attachment=True)), mimetype='application/octet-stream')
+    csv_out.seek(0)
+    #send_file(csv_out,mimetype='application/octet-stream',as_attachment=True)
+    response =  make_response(csv_out.getvalue())
+    response.headers['Content-Type']='text/csv'; 'charset=utf-8'
+    response.headers['Content-Disposition']='attachment; filename=data.csv'
+    return response
+    #return redirect(url_for('test'))
   
 @app.route('/test', methods=['GET', 'POST'])
 def test():
@@ -119,7 +140,7 @@ def test():
     #print query
     
   #print "Called data"
-    return redirect(url_for('data', q=query))
+    return redirect(url_for('data', data=request.form['data'], year=request.form['year']))
   else:
     return render_template('test.html')
 
