@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+ <h2>Select the data.</h2>
+<p>
+<form action="{{ url_for('test') }}" method='post'>
+  <h10>Source</h10>  <select name = "data">
+   <option>DISE</option>
+   <option>NSSO</option>
+   <option>NCRB</option>
+  </select> <h10>Period</h10>  <select name="year">
+   <option>1990-91</option>
+   <option>1992-93</option>
+   <option>1994-95</option>
+  </select>
+ <input type=submit value=Submit>
+</form>
+{% endblock %}
